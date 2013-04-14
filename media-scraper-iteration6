@@ -5,8 +5,8 @@ import utilities
 calais_api = 'placeholder key'
 calais = Calais(calais_api, submitter='journo-calais-study')
 
-itr = 17
-while itr <= 28:
+itr = 16
+while itr <= 16:
     journo_filename ='C:/Users/Naironi/Documents/School Docs 6/SocNet/feb' + str(itr) + '.txt'
     journo_file = open(journo_filename, 'r')
     journolist = journo_file.readlines()
