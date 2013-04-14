@@ -5,7 +5,7 @@ journo_filename = 'C:/Users/Naironi/Documents/School Docs 6/socnet-testdoc5.txt'
 journo_file = open(journo_filename, 'r')
 journolist = journo_file.readlines()
 
-calais_api = '4483rxvb8z8nvez94qzbcrm3'
+calais_api = 'placeholder key'
 calais = Calais(calais_api, submitter='journo-calais-study')
 
 #Open and read. Create calais variable.
