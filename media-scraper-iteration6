@@ -2,7 +2,7 @@ import csv
 from calais import Calais
 import utilities
 
-calais_api = '4483rxvb8z8nvez94qzbcrm3'
+calais_api = 'placeholder key'
 calais = Calais(calais_api, submitter='journo-calais-study')
 
 itr = 17
