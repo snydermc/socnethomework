@@ -19,9 +19,16 @@ filename = "textCSV.csv"
 writeDictToCSV(testDict, "textCSV.csv")
 '''
 
+# Required modules: networkx, twython
 import csv
 import networkx as nx
 import itertools as it
+from Queue import Queue
+from twython import Twython
+# http://stackoverflow.com/questions/5963792/how-to-get-twitter-followers-using-twython
+# http://pythoncentral.org/how-to-use-the-twython-twitter-python-library/
+# https://github.com/ryanmcgrath/twython
+# https://dev.twitter.com/docs/api/1.1
 
 DELIM = "/t"
 
@@ -98,6 +105,51 @@ def createWeightedFromBipartite(biGraph, keepAttr): ###### UNTESTED
 
     return wG
 
-##### Need to scrape twitter
+##### UNTESTED AND PROBABLY NOT WORKING
+class TwitterNavigator(object):
 
-##### Need to do directed graph
+    def __init__(self):
+        self.twitter = Twython()
+
+        # Do I need to log in?
+        
+    # For the following, do I need to consider "cursor" for getting everything(?)
+
+    # Need to build in rate-limiting avoidance?
+    
+    # Probaby won't use this one
+    def followersOf(userName):
+        followers = self.twitter.getFollowersList(screen_name = userName)
+        return [follower['screen_name'] for follower in followers]
+
+    def thoseFollowedBy(userName):
+        friends = self.twitter.getFriendsList(screen_name = userName)
+        return [friend['screen_name'] for friend in friends]
+
+    def getTwitterNetwork(journalists, restrictions=None): # restrictions yet unused
+
+        dG = nx.DiGraph() # is a directed graph
+
+        # smooshing graphs together for journalists input
+        for journalist in journalists:
+            if journalist in dG:
+                continue
+
+            # breadth-first graph construction
+            Q = Queue()
+            Q.put(journalist)
+            dG.add_node(journalist)
+            while Q.empty() == False:
+                fromNode = Q.get()
+                toNodes = thoseFollowedBy(fromNode)
+                for toNode in toNodes:
+                    if toNode not in dG:
+                        Q.put(toNode)
+                    dG.add_edge(fromNode, toNode)
+                    # hopefully this does the directionality right
+        
+        return dG # Note this is pointing toward followEEs (OPPOSITE of presumed direction of influence)
+        
+
+
+
