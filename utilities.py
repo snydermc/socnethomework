@@ -6,6 +6,8 @@ Some utility functions for CSS 692 project
 Matt Snyder
 Brendon Fuhs
 
+Requires networkx, twython
+
 Methods:
 writeDictToCSV(reporterDict, filename)
 readFromCSV(filename)
@@ -20,11 +22,12 @@ writeDictToCSV(testDict, "textCSV.csv")
 '''
 
 # Required modules: networkx, twython
+from time import time
 import csv
 import networkx as nx
 import itertools as it
 from Queue import Queue
-from twython import Twython
+from twython import Twython, TwythonError
 # http://stackoverflow.com/questions/5963792/how-to-get-twitter-followers-using-twython
 # http://pythoncentral.org/how-to-use-the-twython-twitter-python-library/
 # https://github.com/ryanmcgrath/twython
@@ -105,28 +108,27 @@ def createWeightedFromBipartite(biGraph, keepAttr): ###### UNTESTED
 
     return wG
 
+
 ##### UNTESTED AND PROBABLY NOT WORKING
 class TwitterNavigator(object):
 
     def __init__(self):
-        self.twitter = Twython()
-
-        # Do I need to log in?
+        #############################
+        self.twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
         
+        self.lastTime = time()
+        self.frequency #############################
+
     # For the following, do I need to consider "cursor" for getting everything(?)
 
-    # Need to build in rate-limiting avoidance?
-    
-    # Probaby won't use this one
-    def followersOf(userName):
-        followers = self.twitter.getFollowersList(screen_name = userName)
-        return [follower['screen_name'] for follower in followers]
+    def thoseFollowedBy(userName): # timing to not exceed twitter rate limiting
+        while True:
+            if time() - self.lastTime > self.frequency:
+                friends = self.twitter.getFriendsList(screen_name = userName)
+                self.lastTime = time()
+                return [friend['screen_name'] for friend in friends]
 
-    def thoseFollowedBy(userName):
-        friends = self.twitter.getFriendsList(screen_name = userName)
-        return [friend['screen_name'] for friend in friends]
-
-    def getTwitterNetwork(journalists, restrictions=None): # restrictions yet unused
+    def getTwitterNetwork(journalists, depth = -1): # -1 is infinite potential depth
 
         dG = nx.DiGraph() # is a directed graph
 
@@ -139,14 +141,15 @@ class TwitterNavigator(object):
             Q = Queue()
             Q.put(journalist)
             dG.add_node(journalist)
-            while Q.empty() == False:
+            while (Q.empty() == False) and (depth != 0):
                 fromNode = Q.get()
-                toNodes = thoseFollowedBy(fromNode)
+                toNodes = self.thoseFollowedBy(fromNode) #####
                 for toNode in toNodes:
                     if toNode not in dG:
                         Q.put(toNode)
                     dG.add_edge(fromNode, toNode)
                     # hopefully this does the directionality right
+                depth -= 1
         
         return dG # Note this is pointing toward followEEs (OPPOSITE of presumed direction of influence)
         
