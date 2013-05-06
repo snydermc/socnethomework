@@ -108,25 +108,48 @@ def createWeightedFromBipartite(biGraph, keepAttr): ###### UNTESTED
 
     return wG
 
+# To create twitter graph,
+# first manually make a dict of {originNode:[pointees list]}
 
-##### UNTESTED AND PROBABLY NOT WORKING
+def networkXify(nodeDict):
+    dG = nx.DiGraph()
+    for fromNode in nodeDict:
+        for toNode in nodeDict[fromNode]:
+            dg.add_edge(fromNode, toNode)
+    return dG
+
+### BLAH
+'''
 class TwitterNavigator(object):
 
     def __init__(self):
-        #############################
+        APP_KEY = '8H7nCz0f99tRDdLSvaU6Rg'
+        APP_SECRET = '5IzoGUT1R79nrUcp7e4H2uAFHq5VgBcVYzka8OD3vGM'
+        OAUTH_TOKEN = '144321685-ipCA8HiJyD1cFb3fNdt4a091yw16EMv6nrBmEpaB'
+        OAUTH_TOKEN_SECRET = 'eZogXONrA4X8xCaaPpsaFo4jpWxrwwe2JpWQOo0KHs'
         self.twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
         
         self.lastTime = time()
-        self.frequency #############################
+        self.maxRequests = 15 # 15 requests
+        self.refreshTime = 60*15 + 3 # 15 minutes plus 3 seconds for good measure
 
-    # For the following, do I need to consider "cursor" for getting everything(?)
+    ####### NEED TO FIGURE OUT "CURSOR" STUFF
 
     def thoseFollowedBy(userName): # timing to not exceed twitter rate limiting
         while True:
             if time() - self.lastTime > self.frequency:
-                friends = self.twitter.getFriendsList(screen_name = userName)
-                self.lastTime = time()
-                return [friend['screen_name'] for friend in friends]
+                try:
+                    friendsInfo = self.twitter.getFriendsList(screen_name = userName)
+                    friendsNames = [friend[u'screen_name'] for friend in friendsInfo[u'users']]
+                    friendsNames = [str(name) for name in friendsNames] # Not sure if this is necessary or desirable
+                    print "got some..."
+                    ############## HOW DO I GET MORE PAGES?
+                except TwythonError as e:
+                    friendsNames = []
+                    print e
+                    
+                self.lastTime = time() # Do I want this here?
+                return friendsNames
 
     def getTwitterNetwork(journalists, depth = -1): # -1 is infinite potential depth
 
@@ -152,7 +175,7 @@ class TwitterNavigator(object):
                 depth -= 1
         
         return dG # Note this is pointing toward followEEs (OPPOSITE of presumed direction of influence)
-        
+'''
 
 
 
